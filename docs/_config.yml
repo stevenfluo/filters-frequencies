@@ -21,7 +21,7 @@
 title: "Fun with Filters and Frequencies"
 email: sfluo@berkeley.edu
 description: CS 180 Project 2, Steven Luo
-# baseurl: "/filters-frequencies" # the subpath of your site, e.g. /blog
+baseurl: "/filters-frequencies" # the subpath of your site, e.g. /blog
 url: "https://stevenfluo.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 # twitter_username: jekyllrb
 # github_username:  jekyll
