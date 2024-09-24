@@ -549,6 +549,30 @@ Charli the Apple?
     <p style="text-align: center;"><i>Charli Apple (is this brat?)</i></p>
 </p>
 
+Does SF City Hall really look like the U.S. Congress?
+<div class="image-row">
+    <div class="image-container">
+      <img src="./img/sf.jpg" alt="Image 1">
+      <div class="caption">San Francisco City Hall</div>
+    </div>
+    <div class="image-container">
+      <img src="./img/congress.jpg" alt="Image 2">
+      <div class="caption">Congress</div>
+    </div>
+    <div class="image-container">
+      <img src="./img/sf_congress_mask.jpg" alt="Image 2">
+      <div class="caption">Mask</div>
+    </div>
+</div>
+
+
+<p align="center">
+    <img src="./img/sfcongress.png" alt="Oraple!" width="30%"/>
+    <p style="text-align: center;"><i>California, D.C.?</i></p>
+</p>
+
+The proportions and shapes of the two buildings and images were a bit different, so this was hard to blend well.
+
 Campanile @ Stanford:
 <div class="image-row">
     <div class="image-container">
@@ -571,10 +595,16 @@ Campanile @ Stanford:
     <p style="text-align: center;"><i>Stanford looks a lot cooler here...</i></p>
 </p>
 
+The Laplacian stack generated during this process is below. The first column is of the Hoover Tower image Laplacians after convolving with the mask, the second column is of the Campanile, the third column is the layer-combined image, and the fourth column is the corresponding mask from the mask's Gaussian stack. The last row consists of stack-combined images (except the fourth column where the mask is just the original mask).
+
+<p align="center">
+    <img src="./img/grid.png" alt="Oraple!" width="90%"/>
+</p>
+
 Bells & Whistles: The color images are shown above.
 
 ## Reflection
-
+I had a lot of fun picking images and blending them together! The most important thing I learned from this project is that the frequencies in an image really affect our perception and understanding of what we see, and that image editing is a lot harder than it looks. Also, having the tools to superimpose images onto other images gives a lot of power (and responsibility) to the user, and makes me think more about how higher-tech parallels (like deepfakes) interact with society and how we perceive our visual surroundings.
 
 <p align="center">
     <img src="" alt="img" width="20%"/>
