@@ -53,7 +53,7 @@ How do we take the derivative (a continuous operation) of an image (a discrete s
     <p style="text-align: center;"><i>Finite difference operators.</i></p>
 </p>
 
-By convolving the image with D_x and D_y, we get effectively get the partial derivative showing changes in the vertical and horizontal directions. With this, we know the gradient, which we can use to calculate the edge strength (aka the gradient magnitude) by taking the square root of the sum of the squares of the partial derivatives:
+By convolving the image with D_x and D_y, we effectively get the partial derivative showing changes in the vertical and horizontal directions. With this, we know the gradient, which we can use to calculate the edge strength (aka the gradient magnitude) by taking the square root of the sum of the squares of the partial derivatives:
 
 <p align="center">
     <img src="./math/edge_strength.png" alt="edge strength" width="33%"/>
