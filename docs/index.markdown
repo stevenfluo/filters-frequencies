@@ -69,7 +69,7 @@ Let's see the finite difference operator in action! Using an image of a camerama
     <p style="text-align: center;"><i>Original cameraman photo, convolved with D_x, convolved with D_y.</i></p>
 </p>
 
-Next, I compute the gradient magnitude image, and turn this into an edge image by binarizing it with some threshold. After experimenting with a range of values, I found that using 0.25 as my threshold created the best-looking edge image.
+Next, I compute the gradient magnitude image, and turn this into an edge image by binarizing it with some threshold. After experimenting with a range of values, I found that using 0.25 as my threshold created the best-looking edge image. Setting a threshold allows us to binarize the gradient magnitude image while controlling how sensitive the image is to noise.
 
 <p align="center">
     <img src="./img/web_camgradmag.jpg" alt="cameraman" width="20%"/>
@@ -269,7 +269,7 @@ No matter how we adjust alpha, the resulting image is not as good as the origina
 
 To create a hybrid image, we combine a low pass filtered image (only low frequencies remain) with a high pass filtered image (only high frequencies remain). These images are static, appear to change as the viewing distance changes. Though high frequencies tend to dominate perception, at a distance only the low frequency part of the signal can be seen. By blending the high frequency portion of one image with the low-frequency portion of another, you get a hybrid image that leads to different interpretations at different distances.
 
-I started with the provided images of Derek and Nutmeg, using the provided alignment code then low-passing Derek and high-passing Nutmeg (by subtracting the low-frequencies out of the original image). I used a kernel size of 50 for both Gaussian filters, but settled on sigma=12 for the low pass and sigma=10 for the high pass after some tuning. By averaging the results, I made this hybric image:
+I started with the provided images of `Derek.jpg` and `Nutmeg.jpg`, using the provided alignment code then low-passing Derek and high-passing Nutmeg (by subtracting the low-frequencies out of the original image). I used a kernel size of 50 for both Gaussian filters, but settled on `sigma = 12` for the low pass and `sigma = 10` for the high pass after some tuning. By averaging the results, I made this hybric image:
 
 <!-- <p align="center">
     <img src="./img/derekcat.jpg" alt="cameraman" width="30%"/>
@@ -304,6 +304,8 @@ I started with the provided images of Derek and Nutmeg, using the provided align
 
 Some other photos I made: 
 
+Articuno + Pidgey: `kernel_size = 30` `low_sigma = 2`, `high_sigma = 8` 
+
 <div class="image-row">
     <div class="image-container">
       <img src="./img/articuno.jpg" alt="Image 1">
@@ -321,7 +323,27 @@ Some other photos I made:
 
 This one didn't turn out that well: I could have tuned the Gaussian parameters and cutoff frequency better, but I think the bigger issue is that the proportions of the images don't match up and the contrasting colors are visually too contrasting, making it hard for them to "blend" into a hybrid image.
 
-<br />
+Happy + Sad: `kernel_size = 30` `low_sigma = 15`, `high_sigma = 5` 
+
+<div class="image-row">
+    <div class="image-container">
+      <img src="./img/sad.jpg" alt="Image 1">
+      <div class="caption">Sad face</div>
+    </div>
+    <div class="image-container">
+      <img src="./img/happy.jpg" alt="Image 2">
+      <div class="caption">Happy face</div>
+    </div>
+    <div class="image-container">
+      <img src="./img/smilesad.png" alt="Image 2">
+      <div class="caption">Hybrid</div>
+    </div>
+</div>
+
+This one also didn't turn out that well: the features on each image are so distinct it's not possible to line one set of features up without ruining another (i.e. I aligned based on the circle, at the cost of misaligned eyes). Tweaking Gaussian parameters on the high-passed image might help it blend in a bit better, but I'm not convinced that it'll solve the structural issues of very discrete shapes in the image.
+
+Charli XCX + Lorde: `kernel_size = 30` `low_sigma = 2`, `high_sigma = 4` 
+
 <div class="image-row">
     <div class="image-container">
       <img src="./img/charli2.jpg" alt="Image 1">
@@ -337,7 +359,10 @@ This one didn't turn out that well: I could have tuned the Gaussian parameters a
     </div>
 </div>
 
-<br />
+I really like how this one turned out — thanks to my friend for the suggestion!
+
+Magikarp + Feebas: `kernel_size = 30` `low_sigma = 2`, `high_sigma = 2` 
+
 <div class="image-row">
     <div class="image-container">
       <img src="./img/feebas.jpg" alt="Image 1">
@@ -353,7 +378,8 @@ This one didn't turn out that well: I could have tuned the Gaussian parameters a
     </div>
 </div>
 
-<br />
+Sather Gate, then and now: `kernel_size = 30` `low_sigma = 3`, `high_sigma = 10` 
+
 <div class="image-row">
     <div class="image-container">
       <img src="./img/satherold.jpg" alt="Image 1">
@@ -369,9 +395,11 @@ This one didn't turn out that well: I could have tuned the Gaussian parameters a
     </div>
 </div>
 
-Favorite Result: Donald Swift?
+This one was really interesting, because you can see how students now walk on the same path through the gate that the Free Speech Movement protestors demonstrated by.
 
-Creepy or cool... you be the judge!
+Favorite Result: Donald Swift? `kernel_size = 30` `low_sigma = 6`, `high_sigma = 6` 
+
+Creepy or cool... you be the judge! Frequency analysis is below (log magnitudes of the Fourier transform are shown).
 
 <div class="image-row">
     <div class="image-container">
@@ -457,11 +485,13 @@ Bells & Whistles: I used color to enhance the effect of the hybrid image. I trie
     </div>
 </div>
 
-# Multi-resolution Blending and the Oraple journey
+# Multi-resolution Blending and the Oraple Journey
 
 ## 2.3: Gaussian and Laplacian Stacks
 
-I implemented Gaussian and Laplacian stacks. For the oraple, my parameters were: 8 layers, kernel size = 30, sigma = 5.
+I implemented Gaussian and Laplacian stacks. Layers in the Gaussian stack are created by convolving the previous layer with a Gaussian filter, initializing the stack with the original image. Laplacian stack layers are the difference between successive layers in the Gaussian stack. I was careful to avoid off-by-one errors in my implementation, and especially so when using the Gaussian stack created from the mask. I found the project-referenced paper [Burt and Adelson (1983)](https://persci.mit.edu/pub_pdfs/spline83.pdf) and lecture slides visualizing the stacks to be helpful while building my implementation. These stacks allow us to blend images without the "ghosting" we see as a result of alpha blending.
+
+For the oraple, my parameters were: 8 layers, `kernel size = 30`, `sigma = 5`. 
 
 Gaussian and Laplacian Stacks of Apple:
 <p align="center">
@@ -473,14 +503,17 @@ Gaussian and Laplacian Stacks of Orange:
     <img src="./img/oranges.png" alt="cameraman" width="100%"/>
 </p>
 
-Recreation of Figure 3.42: the first three rows show the high, medium, and low-frequency parts of the Laplacian pyramid (taken from levels 0, 2, and 4). The left and middle columns show the original apple and orange images convolved with the corresponding layer from the mask Gaussian stack, while the right column shows the combined image. The last row is the result of flattening the stack on the left half, right half, and full image respectively.
+Recreation of Figure 3.42: the first three rows show the high, medium, and low-frequency parts of the Laplacian stack (taken from levels 0, 2, and 4 respectively). The left and middle columns show the original apple and orange images convolved with the corresponding layer from the mask Gaussian stack, while the right column shows the combined image. The last row is the result of flattening the stack on the left half, right half, and combined images respectively. 
+
 <p align="center">
     <img src="./img/fig42.png" alt="cameraman" width="50%"/>
 </p>
 
+A more intuitive way to think about combining the images in the stack is as follows: we squash the columns rightwards to get the image in the last column, and we can squash the rows downwards to get the image in the last row. Note that by summing the Laplacian stack of an image, we can recover the original!
+
 ## 2.4: Multiresolution Blending (a.k.a. the oraple!)
 
-Here are my results:
+My blended images can be found below. I use a Gaussian filter with `kernel_size = 30` and `sigma = 5` to create the Gaussian stack for the input images, but in some cases I instead use a larger filter on the masks for a stronger blur effect (specifically on the oraple, where I use `kernel_size = 50` and `sigma = 25` to create the mask Gaussian stack only). 
 
 Oraple:
 <div class="image-row">
@@ -493,7 +526,7 @@ Oraple:
       <div class="caption">Apple</div>
     </div>
     <div class="image-container">
-      <img src="./img/oraple_mask.jpg" alt="Image 2">
+      <img src="./img/oraple_mask.jpg" alt="Image 2" border="1">
       <div class="caption">Mask</div>
     </div>
 </div>
@@ -515,7 +548,7 @@ Harris/Trump:
       <div class="caption">Donald Trump</div>
     </div>
     <div class="image-container">
-      <img src="./img/harris_trump_mask.jpg" alt="Image 2">
+      <img src="./img/harris_trump_mask.jpg" alt="Image 2" border="1">
       <div class="caption">Mask</div>
     </div>
 </div>
@@ -538,7 +571,7 @@ Charli the Apple?
       <div class="caption">Apple</div>
     </div>
     <div class="image-container">
-      <img src="./img/apple_mask.jpg" alt="Image 2">
+      <img src="./img/apple_mask.jpg" alt="Image 2" border="1">
       <div class="caption">Mask</div>
     </div>
 </div>
@@ -560,7 +593,7 @@ Does SF City Hall really look like the U.S. Congress?
       <div class="caption">Congress</div>
     </div>
     <div class="image-container">
-      <img src="./img/sf_congress_mask.jpg" alt="Image 2">
+      <img src="./img/sf_congress_mask.jpg" alt="Image 2" border="1">
       <div class="caption">Mask</div>
     </div>
 </div>
@@ -571,7 +604,7 @@ Does SF City Hall really look like the U.S. Congress?
     <p style="text-align: center;"><i>California, D.C.?</i></p>
 </p>
 
-The proportions and shapes of the two buildings and images were a bit different, so this was hard to blend well.
+The proportions and shapes of the two buildings and images were a bit different, so this was hard to blend well and I don't count this as a total success. I do see the resemblance, though!
 
 Campanile @ Stanford:
 <div class="image-row">
@@ -584,7 +617,7 @@ Campanile @ Stanford:
       <div class="caption">Hoover Tower (Stanford)</div>
     </div>
     <div class="image-container">
-      <img src="./img/tower_mask.jpg" alt="Image 2">
+      <img src="./img/tower_mask.jpg" alt="Image 2" border="1">
       <div class="caption">Mask</div>
     </div>
 </div>
@@ -598,18 +631,23 @@ Campanile @ Stanford:
 The Laplacian stack generated during this process is below. The first column is of the Hoover Tower image Laplacians after convolving with the mask, the second column is of the Campanile, the third column is the layer-combined image, and the fourth column is the corresponding mask from the mask's Gaussian stack. The last row consists of stack-combined images (except the fourth column where the mask is just the original mask).
 
 <p align="center">
-    <img src="./img/grid.png" alt="Oraple!" width="90%"/>
+    <img src="./img/grid.png" alt="Oraple!" width="90%" />
 </p>
 
-Bells & Whistles: The color images are shown above.
+I tried to find an image of Stanford's Hoover Tower at a similar angle on a clearer day, but somehow couldn't anywhere online! The backgrounds would have blended much more nicely.
+
+
+Bells & Whistles: The color images are shown above, and are significantly more appealing than the grayscale versions.
+
+A note on setting filter sizes: for this project, I took Prof. Efros' advice from lecture that a general rule of thumb for setting Gaussian filter sizes is that the filter half-width should be about `3 * σ` (also in the "Convolution and Image Derivatives" lecture).
 
 ## Reflection
-I had a lot of fun picking images and blending them together! The most important thing I learned from this project is that the frequencies in an image really affect our perception and understanding of what we see, and that image editing is a lot harder than it looks. Also, having the tools to superimpose images onto other images gives a lot of power (and responsibility) to the user, and makes me think more about how higher-tech parallels (like deepfakes) interact with society and how we perceive our visual surroundings.
+I had a lot of fun picking images and blending them together. The most important thing I learned from this project is that the frequencies in an image really affect our perception and understanding of what we see, and that image editing is a lot harder than it looks. Also, having the tools to superimpose images onto other images gives a lot of power (and responsibility) to the user, and makes me think more about how higher-tech parallels (like deepfakes) interact with society and how we perceive our visual surroundings. I got to make a lot of silly images to share, though!
 
-<p align="center">
+<!-- <p align="center">
     <img src="" alt="img" width="20%"/>
     <img src="" alt="img" width="20%"/>
     <img src="" alt="img" width="20%"/>
     <img src="" alt="img" width="20%"/>
     <p style="text-align: center;"><i>Caption.</i></p>
-</p>
+</p> -->
